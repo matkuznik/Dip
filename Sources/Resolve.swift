@@ -46,7 +46,7 @@ extension DependencyContainer {
    - seealso: `register(_:type:tag:factory:)`
    */
   public func resolve<T>(tag: DependencyTagConvertible? = nil) throws -> T {
-    return try resolve(tag: tag) { factory in try factory() }
+    return try resolve(tag: tag) { factory in try factory(()) }
   }
 
   /**
@@ -73,7 +73,7 @@ extension DependencyContainer {
    - seealso: `resolve(tag:)`, `register(_:type:tag:factory:)`
    */
   public func resolve(_ type: Any.Type, tag: DependencyTagConvertible? = nil) throws -> Any {
-    return try resolve(type, tag: tag) { factory in try factory() }
+    return try resolve(type, tag: tag) { factory in try factory(()) }
   }
   
   /**
@@ -100,7 +100,7 @@ extension DependencyContainer {
    
    Though before you do so you should probably review your design and try to reduce the number of dependencies.
    */
-  public func resolve<T, U>(tag: DependencyTagConvertible? = nil, builder: ((U) throws -> T) throws -> T) throws -> T {
+  public func resolve<T, U>(tag: DependencyTagConvertible? = nil, builder: @escaping ((U) throws -> T) throws -> T) throws -> T {
     return try _resolve(tag: tag, builder: builder)
   }
   
@@ -117,7 +117,7 @@ extension DependencyContainer {
 
 extension DependencyContainer {
   
-  func _resolve<T, U>(tag aTag: DependencyTagConvertible? = nil, builder: ((U) throws -> T) throws -> T) throws -> T {
+  func _resolve<T, U>(tag aTag: DependencyTagConvertible? = nil, builder: @escaping ((U) throws -> T) throws -> T) throws -> T {
     return try resolve(T.self, tag: aTag, builder: { factory in
       try builder({ try factory($0) as! T })
     }) as! T
